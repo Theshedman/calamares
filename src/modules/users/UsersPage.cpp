@@ -32,6 +32,7 @@
 #include <QFile>
 #include <QLabel>
 #include <QLineEdit>
+#include <QRegularExpression>
 
 /** @brief Add an error message and pixmap to a label. */
 static inline void
@@ -176,8 +177,9 @@ UsersPage::UsersPage( Config* config, QWidget* parent )
     connect( ui->ipAddressField, &QLineEdit::textChanged, config, &Config::setActiveDirectoryIP );
 
     // ShedOS extension: optional dev/git setup. SSH checkbox stays
-    // disabled until the email field contains an @, since the keygen
-    // step uses the email as the key comment.
+    // disabled until the email field looks like a real address —
+    // the keygen step uses the email as the key comment so a
+    // partial string like "foo@" would produce a useless key.
     ui->textBoxDevinfoEmail->setText( config->devinfoEmail() );
     ui->checkBoxDevinfoSsh->setChecked( config->devinfoSsh() );
     connect( ui->textBoxDevinfoEmail, &QLineEdit::textEdited, config, &Config::setDevinfoEmail );
@@ -186,7 +188,9 @@ UsersPage::UsersPage( Config* config, QWidget* parent )
              this,
              [ this ]( const QString& email )
              {
-                 const bool ok = email.contains( '@' );
+                 static const QRegularExpression emailRe(
+                     QStringLiteral( "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$" ) );
+                 const bool ok = emailRe.match( email ).hasMatch();
                  ui->checkBoxDevinfoSsh->setEnabled( ok );
                  if ( !ok && ui->checkBoxDevinfoSsh->isChecked() )
                  {
