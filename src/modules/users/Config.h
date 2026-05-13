@@ -126,6 +126,12 @@ class PLUGINDLLEXPORT Config : public Calamares::ModuleSystem::Config
 
     Q_PROPERTY( bool ready READ isReady NOTIFY readyChanged STORED false )
 
+    // ShedOS extension: optional developer/git setup captured on the user
+    // page. The email feeds shedos_gitconfig at install time; the bool
+    // gates ssh-keygen in the same chroot step.
+    Q_PROPERTY( QString devinfoEmail READ devinfoEmail WRITE setDevinfoEmail NOTIFY devinfoEmailChanged )
+    Q_PROPERTY( bool devinfoSsh READ devinfoSsh WRITE setDevinfoSsh NOTIFY devinfoSshChanged )
+
 public:
     /** @brief Validity (status) of a password
      *
@@ -268,6 +274,9 @@ public:
     int homePermissions() const { return m_homeDirPermissions; }
     int homeUMask() const { return m_homeDirPermissions >= 0 ? ( ( ~m_homeDirPermissions ) & 0777 ) : -1; }
 
+    QString devinfoEmail() const { return m_devinfoEmail; }
+    bool devinfoSsh() const { return m_devinfoSsh; }
+
 public Q_SLOTS:
     /** @brief Sets the user's shell if possible
      *
@@ -311,6 +320,9 @@ public Q_SLOTS:
     void setActiveDirectoryDomain( const QString& );
     void setActiveDirectoryIP( const QString& );
 
+    void setDevinfoEmail( const QString& email );
+    void setDevinfoSsh( bool enabled );
+
 signals:
     void userShellChanged( const QString& );
     void autoLoginGroupChanged( const QString& );
@@ -330,6 +342,8 @@ signals:
     void rootPasswordSecondaryChanged( const QString& );
     void rootPasswordStatusChanged( int, const QString& );
     void readyChanged( bool ) const;
+    void devinfoEmailChanged( const QString& );
+    void devinfoSshChanged( bool );
 
 private:
     PasswordStatus passwordStatus( const QString&, const QString& ) const;
@@ -381,6 +395,9 @@ private:
     PasswordCheckList m_passwordChecks;
 
     int m_homeDirPermissions = -1;
+
+    QString m_devinfoEmail;
+    bool m_devinfoSsh = false;
 };
 
 #endif

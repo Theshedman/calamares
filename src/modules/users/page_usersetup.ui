@@ -691,6 +691,51 @@ SPDX-License-Identifier: GPL-3.0-or-later
     </layout>
    </item>
    <item>
+    <widget class="QGroupBox" name="groupBoxDevinfo">
+     <property name="title">
+      <string>Developer setup (optional)</string>
+     </property>
+     <layout class="QVBoxLayout" name="devinfoLayout">
+      <item>
+       <widget class="QLabel" name="labelDevinfoEmail">
+        <property name="text">
+         <string>Email address (used for git and SSH key labels):</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="textBoxDevinfoEmail">
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="placeholderText">
+         <string>you@example.com</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBoxDevinfoSsh">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Generates an ed25519 SSH key in your ~/.ssh/. The agent and key will load automatically on your first shell login. Add the public key to GitHub manually after install.</string>
+        </property>
+        <property name="text">
+         <string>Generate an SSH key (ed25519) for me</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer_7">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

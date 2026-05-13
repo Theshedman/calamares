@@ -705,6 +705,38 @@ Config::setActiveDirectoryIP( const QString& s )
     m_activeDirectoryIP = s;
 }
 
+void
+Config::setDevinfoEmail( const QString& email )
+{
+    if ( email == m_devinfoEmail )
+    {
+        return;
+    }
+    m_devinfoEmail = email;
+    Calamares::GlobalStorage* gs = Calamares::JobQueue::instance()->globalStorage();
+    if ( email.isEmpty() )
+    {
+        gs->remove( "devinfoEmail" );
+    }
+    else
+    {
+        gs->insert( "devinfoEmail", email );
+    }
+    emit devinfoEmailChanged( email );
+}
+
+void
+Config::setDevinfoSsh( bool enabled )
+{
+    if ( enabled == m_devinfoSsh )
+    {
+        return;
+    }
+    m_devinfoSsh = enabled;
+    Calamares::JobQueue::instance()->globalStorage()->insert( "devinfoSsh", enabled );
+    emit devinfoSshChanged( enabled );
+}
+
 QString
 Config::rootPassword() const
 {

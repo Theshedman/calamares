@@ -175,6 +175,30 @@ UsersPage::UsersPage( Config* config, QWidget* parent )
     connect( ui->domainPasswordField, &QLineEdit::textChanged, config, &Config::setActiveDirectoryAdminPassword );
     connect( ui->ipAddressField, &QLineEdit::textChanged, config, &Config::setActiveDirectoryIP );
 
+    // ShedOS extension: optional dev/git setup. SSH checkbox stays
+    // disabled until the email field contains an @, since the keygen
+    // step uses the email as the key comment.
+    ui->textBoxDevinfoEmail->setText( config->devinfoEmail() );
+    ui->checkBoxDevinfoSsh->setChecked( config->devinfoSsh() );
+    connect( ui->textBoxDevinfoEmail, &QLineEdit::textEdited, config, &Config::setDevinfoEmail );
+    connect( ui->textBoxDevinfoEmail,
+             &QLineEdit::textChanged,
+             this,
+             [ this ]( const QString& email )
+             {
+                 const bool ok = email.contains( '@' );
+                 ui->checkBoxDevinfoSsh->setEnabled( ok );
+                 if ( !ok && ui->checkBoxDevinfoSsh->isChecked() )
+                 {
+                     ui->checkBoxDevinfoSsh->setChecked( false );
+                 }
+             } );
+    connect( ui->checkBoxDevinfoSsh,
+             Calamares::checkBoxStateChangedSignal,
+             this,
+             [ this ]( Calamares::checkBoxStateType checked )
+             { m_config->setDevinfoSsh( checked != Calamares::checkBoxUncheckedValue ); } );
+
     CALAMARES_RETRANSLATE_SLOT( &UsersPage::retranslate );
 
     onReuseUserPasswordChanged( m_config->reuseUserPasswordForRoot() );
