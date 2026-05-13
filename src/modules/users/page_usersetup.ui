@@ -699,7 +699,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
       <item>
        <widget class="QLabel" name="labelDevinfoEmail">
         <property name="text">
-         <string>Email address (used for git and SSH key labels):</string>
+         <string>Email Address (used for Git and SSH setup)</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
