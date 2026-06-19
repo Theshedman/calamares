@@ -38,6 +38,16 @@ SPDX-License-Identifier: GPL-3.0-or-later
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="m_promptLabel">
+     <property name="text">
+      <string notr="true"/>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::PlainText</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLabel" name="m_encryptionUnsupportedLabel">
      <property name="toolTip">
       <string>Your system does not seem to support encryption well enough to encrypt the entire system. You may enable encryption, but performance may suffer.</string>

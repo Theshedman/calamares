@@ -47,6 +47,7 @@ EncryptWidget::EncryptWidget( QWidget* parent )
     m_ui->m_passphraseLineEdit->hide();
     m_ui->m_confirmLineEdit->hide();
     m_ui->m_iconLabel->hide();
+    m_ui->m_promptLabel->hide();
     // TODO: this deserves better rendering, an icon or something, but that will
     //       depend on having a non-bogus implementation of systemSupportsEncryptionAcceptably
     if ( systemSupportsEncryptionAcceptably() )
@@ -164,22 +165,27 @@ EncryptWidget::updateState( const bool notify )
         {
             applyPixmap( m_ui->m_iconLabel, Calamares::StatusWarning );
             m_ui->m_iconLabel->setToolTip( tr( "Please enter the same passphrase in both boxes.", "@tooltip" ) );
+            m_ui->m_promptLabel->setText( tr( "Set a passphrase to encrypt this disk", "@label" ) );
         }
         else if ( m_filesystem == FileSystem::Zfs && p1.length() < ZFS_MIN_LENGTH )
         {
             applyPixmap( m_ui->m_iconLabel, Calamares::StatusError );
             m_ui->m_iconLabel->setToolTip(
                 tr( "Password must be a minimum of %1 characters.", "@tooltip" ).arg( ZFS_MIN_LENGTH ) );
+            m_ui->m_promptLabel->setText(
+                tr( "Passphrase must be at least %1 characters", "@label" ).arg( ZFS_MIN_LENGTH ) );
         }
         else if ( p1 == p2 )
         {
             applyPixmap( m_ui->m_iconLabel, Calamares::StatusOk );
             m_ui->m_iconLabel->setToolTip( QString() );
+            m_ui->m_promptLabel->setText( QString() );
         }
         else
         {
             applyPixmap( m_ui->m_iconLabel, Calamares::StatusError );
             m_ui->m_iconLabel->setToolTip( tr( "Please enter the same passphrase in both boxes.", "@tooltip" ) );
+            m_ui->m_promptLabel->setText( tr( "Passphrases do not match", "@label" ) );
         }
     }
 
@@ -210,10 +216,13 @@ EncryptWidget::onCheckBoxStateChanged( Calamares::checkBoxStateType checked )
     m_ui->m_passphraseLineEdit->setVisible( visible );
     m_ui->m_confirmLineEdit->setVisible( visible );
     m_ui->m_iconLabel->setVisible( visible );
+    m_ui->m_promptLabel->setVisible( visible );
     m_ui->m_passphraseLineEdit->clear();
     m_ui->m_confirmLineEdit->clear();
-    m_ui->m_iconLabel->clear();
 
+    // Don't clear the icon: updateState() repaints the warning pixmap right
+    // below, and blanking it first leaves the row without the cue that the
+    // empty fields still need a passphrase.
     updateState();
 }
 
@@ -224,5 +233,14 @@ EncryptWidget::setFilesystem( const FileSystem::Type fs )
     if ( m_state != Encryption::Disabled )
     {
         updateState( false );
+    }
+}
+
+void
+EncryptWidget::setPassphraseFocus()
+{
+    if ( m_ui->m_passphraseLineEdit->isVisible() )
+    {
+        m_ui->m_passphraseLineEdit->setFocus( Qt::OtherFocusReason );
     }
 }

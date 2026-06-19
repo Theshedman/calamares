@@ -53,6 +53,9 @@ public:
 
     QString passphrase() const;
 
+    /** @brief Focus the first passphrase field, if it is visible. */
+    void setPassphraseFocus();
+
     void retranslate();
 
 signals:

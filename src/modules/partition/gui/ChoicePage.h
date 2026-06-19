@@ -83,7 +83,7 @@ public:
      * @brief applyActionChoice reacts to a choice of partitioning mode.
      * @param choice the partitioning action choice.
      */
-    void applyActionChoice( Config::InstallChoice choice );
+    void applyActionChoice( Config::InstallChoice choice, bool silent = false );
 
     int lastSelectedDeviceIndex();
     void setLastSelectedDeviceIndex( int index );
