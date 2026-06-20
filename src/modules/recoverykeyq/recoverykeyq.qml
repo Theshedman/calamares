@@ -61,7 +61,7 @@ Item {
             horizontalAlignment: Text.AlignHCenter
             font.pointSize: 10
             opacity: 0.7
-            text: qsTr("When unlocking, you can type the key with or without the dashes.")
+            text: qsTr("When unlocking, you can type the key in upper or lower case, with or without the dashes.")
         }
 
         CheckBox {
