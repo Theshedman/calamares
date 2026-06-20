@@ -54,6 +54,16 @@ Item {
             text: config.recoveryKey
         }
 
+        Label {
+            Layout.fillWidth: true
+            visible: config.encrypted
+            wrapMode: Text.WordWrap
+            horizontalAlignment: Text.AlignHCenter
+            font.pointSize: 10
+            opacity: 0.7
+            text: qsTr("When unlocking, you can type the key with or without the dashes.")
+        }
+
         CheckBox {
             Layout.topMargin: 8
             visible: config.encrypted
