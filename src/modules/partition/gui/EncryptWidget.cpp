@@ -17,6 +17,9 @@
 #include "utils/Gui.h"
 #include "utils/Retranslator.h"
 
+#include <QShowEvent>
+#include <QTimer>
+
 constexpr int ZFS_MIN_LENGTH = 8;
 
 /** @brief Does this system support whole-disk encryption?
@@ -47,7 +50,6 @@ EncryptWidget::EncryptWidget( QWidget* parent )
     m_ui->m_passphraseLineEdit->hide();
     m_ui->m_confirmLineEdit->hide();
     m_ui->m_iconLabel->hide();
-    m_ui->m_promptLabel->hide();
     // TODO: this deserves better rendering, an icon or something, but that will
     //       depend on having a non-bogus implementation of systemSupportsEncryptionAcceptably
     if ( systemSupportsEncryptionAcceptably() )
@@ -156,6 +158,16 @@ applyPixmap( QLabel* label, Calamares::ImageType pixmap )
 void
 EncryptWidget::updateState( const bool notify )
 {
+    // The affordance lives on the inputs: a red border whenever encryption is
+    // on but the passphrase isn't a confirmed match. A row-internal label gets
+    // squeezed to nothing in the single fixed-height row, so it could never be
+    // the cue; the border makes the empty-and-required state obvious before the
+    // user even types. Catppuccin red to match the installer theme; an empty
+    // sheet reverts to the theme default once the fields match.
+    static const QString invalidEditQss = QStringLiteral(
+        "QLineEdit { border: 2px solid #f38ba8; border-radius: 3px; padding: 2px; }" );
+    static const QString validEditQss = QString();
+
     if ( m_ui->m_passphraseLineEdit->isVisible() )
     {
         QString p1 = m_ui->m_passphraseLineEdit->text();
@@ -165,27 +177,30 @@ EncryptWidget::updateState( const bool notify )
         {
             applyPixmap( m_ui->m_iconLabel, Calamares::StatusWarning );
             m_ui->m_iconLabel->setToolTip( tr( "Please enter the same passphrase in both boxes.", "@tooltip" ) );
-            m_ui->m_promptLabel->setText( tr( "Set a passphrase to encrypt this disk", "@label" ) );
+            m_ui->m_passphraseLineEdit->setStyleSheet( invalidEditQss );
+            m_ui->m_confirmLineEdit->setStyleSheet( invalidEditQss );
         }
         else if ( m_filesystem == FileSystem::Zfs && p1.length() < ZFS_MIN_LENGTH )
         {
             applyPixmap( m_ui->m_iconLabel, Calamares::StatusError );
             m_ui->m_iconLabel->setToolTip(
                 tr( "Password must be a minimum of %1 characters.", "@tooltip" ).arg( ZFS_MIN_LENGTH ) );
-            m_ui->m_promptLabel->setText(
-                tr( "Passphrase must be at least %1 characters", "@label" ).arg( ZFS_MIN_LENGTH ) );
+            m_ui->m_passphraseLineEdit->setStyleSheet( invalidEditQss );
+            m_ui->m_confirmLineEdit->setStyleSheet( invalidEditQss );
         }
         else if ( p1 == p2 )
         {
             applyPixmap( m_ui->m_iconLabel, Calamares::StatusOk );
             m_ui->m_iconLabel->setToolTip( QString() );
-            m_ui->m_promptLabel->setText( QString() );
+            m_ui->m_passphraseLineEdit->setStyleSheet( validEditQss );
+            m_ui->m_confirmLineEdit->setStyleSheet( validEditQss );
         }
         else
         {
             applyPixmap( m_ui->m_iconLabel, Calamares::StatusError );
             m_ui->m_iconLabel->setToolTip( tr( "Please enter the same passphrase in both boxes.", "@tooltip" ) );
-            m_ui->m_promptLabel->setText( tr( "Passphrases do not match", "@label" ) );
+            m_ui->m_passphraseLineEdit->setStyleSheet( invalidEditQss );
+            m_ui->m_confirmLineEdit->setStyleSheet( invalidEditQss );
         }
     }
 
@@ -216,7 +231,6 @@ EncryptWidget::onCheckBoxStateChanged( Calamares::checkBoxStateType checked )
     m_ui->m_passphraseLineEdit->setVisible( visible );
     m_ui->m_confirmLineEdit->setVisible( visible );
     m_ui->m_iconLabel->setVisible( visible );
-    m_ui->m_promptLabel->setVisible( visible );
     m_ui->m_passphraseLineEdit->clear();
     m_ui->m_confirmLineEdit->clear();
 
@@ -242,5 +256,19 @@ EncryptWidget::setPassphraseFocus()
     if ( m_ui->m_passphraseLineEdit->isVisible() )
     {
         m_ui->m_passphraseLineEdit->setFocus( Qt::OtherFocusReason );
+    }
+}
+
+void
+EncryptWidget::showEvent( QShowEvent* event )
+{
+    QWidget::showEvent( event );
+    // Focus the passphrase field the moment the page is shown — but one
+    // event-loop turn late, so it wins against the focus Calamares' ViewManager
+    // puts on the page/Next button when the step activates. Self-correcting on
+    // every show (Back→Next re-focuses); no-op when the field is hidden.
+    if ( m_ui->m_passphraseLineEdit->isVisible() )
+    {
+        QTimer::singleShot( 0, this, [ this ] { setPassphraseFocus(); } );
     }
 }

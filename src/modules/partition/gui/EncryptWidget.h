@@ -61,6 +61,9 @@ public:
 signals:
     void stateChanged( Encryption );
 
+protected:
+    void showEvent( QShowEvent* event ) override;
+
 private:
     void updateState( const bool notify = true );
     void onPassphraseEdited();

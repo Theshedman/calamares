@@ -54,7 +54,6 @@
 #include <QFutureWatcher>
 #include <QLabel>
 #include <QListView>
-#include <QTimer>
 #include <QtConcurrent/QtConcurrent>
 
 using Calamares::Partition::findPartitionByPath;
@@ -1085,12 +1084,6 @@ ChoicePage::updateActionChoicePreview( InstallChoice choice )
             {
                 m_encryptWidget->setEncryptionCheckbox( true );
                 m_preCheckActivated = true;
-                // Defer focus to the next event-loop turn: the rest of this
-                // page (preview bars, bootloader panel) is still being built
-                // and would otherwise grab focus first. Latched on
-                // m_preCheckActivated, so it fires once and never yanks focus
-                // back while the user is filling the confirm field.
-                QTimer::singleShot( 0, m_encryptWidget, [ this ] { m_encryptWidget->setPassphraseFocus(); } );
             }
         }
         m_previewBeforeLabel->setText( tr( "Current:", "@label" ) );
@@ -1151,12 +1144,6 @@ ChoicePage::updateActionChoicePreview( InstallChoice choice )
             {
                 m_encryptWidget->setEncryptionCheckbox( true );
                 m_preCheckActivated = true;
-                // Defer focus to the next event-loop turn: the rest of this
-                // page (preview bars, bootloader panel) is still being built
-                // and would otherwise grab focus first. Latched on
-                // m_preCheckActivated, so it fires once and never yanks focus
-                // back while the user is filling the confirm field.
-                QTimer::singleShot( 0, m_encryptWidget, [ this ] { m_encryptWidget->setPassphraseFocus(); } );
             }
         }
         m_previewBeforeLabel->setText( tr( "Current:", "@label" ) );
